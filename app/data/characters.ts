@@ -5,6 +5,7 @@ export type Character = {
   ability: Record<string, string>; story: Record<string, string>; timeline: { year: string; text: string }[];
   relationships: { characterId: string; label: string; description: string }[];
   gallery: { url: string; type: string; date: string }[];
+  logs?: { date: string; title: string; content: string }[];
 };
 
 const img = (id: string, w = 1000, h = 1300) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&h=${h}&q=88`;
