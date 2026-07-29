@@ -106,7 +106,8 @@ export default function Archive() {
 
   useEffect(() => {
     setPage("home");
-    setCanEdit(location.hostname === "localhost" || location.hostname === "127.0.0.1");
+    const isLocalEditor = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+    setCanEdit(isLocalEditor);
     if ("scrollRestoration" in history) history.scrollRestoration = "manual";
     scrollTo(0, 0);
     void (async () => {
@@ -119,14 +120,16 @@ export default function Archive() {
         loadArchive<Character[]>("atelier-characters"), loadArchive<HomeSettings>("atelier-home"),
         loadArchive<UpdateItem[]>("atelier-updates"), loadArchive<WorldItem[]>("atelier-worlds"),
       ]);
-      if (published?.characters) liveCharacters = published.characters;
-      else if (savedCharacters) liveCharacters = savedCharacters;
+      // 로컬 편집 화면에서는 사용자가 저장한 내용을 가장 먼저 불러옵니다.
+      // 공개 사이트에서는 배포된 archive-data.json만 표시합니다.
+      if (isLocalEditor && savedCharacters) liveCharacters = savedCharacters;
+      else if (published?.characters) liveCharacters = published.characters;
       setSelected(liveCharacters[0]?.id || "");
-      if (published?.home) liveHome = { ...defaultHome, ...published.home };
-      else if (savedHome) liveHome = { ...defaultHome, ...savedHome };
+      if (isLocalEditor && savedHome) liveHome = { ...defaultHome, ...savedHome };
+      else if (published?.home) liveHome = { ...defaultHome, ...published.home };
       if (savedUpdates) liveUpdates = savedUpdates;
-      if (published?.worlds) liveWorlds = published.worlds;
-      else if (savedWorlds) liveWorlds = savedWorlds;
+      if (isLocalEditor && savedWorlds) liveWorlds = savedWorlds;
+      else if (published?.worlds) liveWorlds = published.worlds;
       if (!localStorage.getItem("restore-atelier-title-v2")) {
         liveHome = { ...liveHome, siteTitle: "ATELIER NOCTURNE", footerTitle: "ATELIER NOCTURNE" };
         await saveArchive("atelier-home", liveHome);
